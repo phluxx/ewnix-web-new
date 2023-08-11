@@ -8,17 +8,16 @@ WORKDIR /app
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     ca-certificates \
-    git \
+    git golang \
     && rm -rf /var/lib/apt/lists/*
 
 # Clone your Go backend repository
-RUN git clone <your_backend_repository_url> backend
+RUN git clone https://github.com/phluxx/ewnix-web-new.git backend
 
 # Navigate into the backend directory
 WORKDIR /app/backend
 
 # Initialize Go modules and install dependencies
-RUN go mod init <module_name>
 RUN go get github.com/gorilla/mux
 
 # Build the Go application
@@ -28,10 +27,10 @@ RUN go build -o main
 WORKDIR /app
 
 # Copy your Vue.js frontend files into the container
-COPY my-chat-app /app/my-chat-app
+COPY . /app/ewnix
 
 # Navigate to the Vue.js frontend directory
-WORKDIR /app/my-chat-app
+WORKDIR /app/ewnix
 
 # Install Node.js and npm
 RUN apt-get update && \
@@ -51,7 +50,7 @@ FROM debian:bookworm
 
 # Copy the built Go and Vue.js artifacts from the 'build' stage
 COPY --from=build /app/backend/main /app/backend/
-COPY --from=build /app/my-chat-app/dist /app/my-chat-app/
+COPY --from=build /app/ewnix/dist /app/ewnix/
 
 # Set the working directory
 WORKDIR /app/backend
